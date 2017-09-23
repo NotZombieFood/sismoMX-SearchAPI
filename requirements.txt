@@ -1,0 +1,6 @@
+fuzzywuzzy
+flask
+flask_cors
+gspread
+python-Levenshtein
+oauth2client
