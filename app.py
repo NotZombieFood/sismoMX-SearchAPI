@@ -19,61 +19,6 @@ from fuzzywuzzy import process
 from oauth2client.service_account import ServiceAccountCredentials
 
 
-scope = ['https://spreadsheets.google.com/feeds']
-
-credentials = ServiceAccountCredentials.from_json_keyfile_name('sismoAPI-cfab23253d15.json', scope)
-
-gc = gspread.authorize(credentials)
-
-sh = gc.open_by_url('https://docs.google.com/spreadsheets/d/1a-rZqtPUvHn-73sZEb7Epn4R9ouTiMfjPOysB-4hLYA')
-worksheet = sh.worksheet("Encontrados")
-encontrados = worksheet.get_all_values()
-worksheet2 = sh.worksheet("Desaparecidos")
-desaparecidos = worksheet.get_all_values()
-
-# for i in range(len(magiclist)):
-#   for i2 in range(len(magiclist[i])):
-#       print(magiclist[i][i2])
-#       i2+=1
-#   i+=1
-def buscarEncontrados(param):
-    listaEncontrados = []
-    for i in range(len(encontrados)):
-        ratio = fuzz.partial_ratio(param,encontrados[i][0])
-        if (ratio>75):
-            listaEncontrados.append(encontrados[i][0])
-        i+=1
-    return listaEncontrados
-
-def buscarDesaparecidos(param):
-    listaDesaparecidos = []
-    for i in range(len(desaparecidos)):
-        ratio = fuzz.partial_ratio(param,desaparecidos[i][0])
-        if (ratio>75):
-            listaDesaparecidos.append(desaparecidos[i][0])
-        i+=1
-    return listaDesaparecidos
-
-
-def set_globvar():              # setear variables globales
-    global desaparecidos
-    desaparecidos = 1
-    global encontrados
-    encontrados = 1
-
-def getsheet():  #valores globales para no tener que estar haciendo llamadas tan seguido, es tardado
-    gc = gspread.authorize(credentials)
-    sh = gc.open_by_url('https://docs.google.com/spreadsheets/d/1a-rZqtPUvHn-73sZEb7Epn4R9ouTiMfjPOysB-4hLYA')
-    print("Worksheet obtenida")
-    worksheet = sh.worksheet("Encontrados")
-    encontrados = worksheet.get_all_values()
-    worksheet2 = sh.worksheet("Desaparecidos")
-    desaparecidos = worksheet.get_all_values()
-
-set_globvar()
-getsheet()
-
-
 # %% Flask app
 app = Flask(__name__)
 CORS(app)
@@ -81,18 +26,27 @@ CORS(app)
 # funcion para buscar por nombre
 
 
-def buscar(nombre):
+def buscar(param):
+    scope = ['https://spreadsheets.google.com/feeds']
+    credentials = ServiceAccountCredentials.from_json_keyfile_name('sismoAPI-cfab23253d15.json', scope)
+    gc = gspread.authorize(credentials)
+    sh = gc.open_by_url('https://docs.google.com/spreadsheets/d/1a-rZqtPUvHn-73sZEb7Epn4R9ouTiMfjPOysB-4hLYA')
+    print("Worksheet obtenida")
+    worksheet = sh.worksheet("Encontrados")
+    encontrados = worksheet.get_all_values()
+    worksheet2 = sh.worksheet("Desaparecidos")
+    desaparecidos = worksheet2.get_all_values()
     listaEncontrados = []
     for i in range(len(encontrados)):
         ratio = fuzz.partial_ratio(param,encontrados[i][0])
-        if (ratio>75):
+        if (ratio>77):
             listaEncontrados.append(encontrados[i][0])
         i+=1
     listaDesaparecidos = []
     for i2 in range(len(desaparecidos)):
-        ratio = fuzz.partial_ratio(param,desaparecidos[i][0])
-        if (ratio>75):
-            listaDesaparecidos.append(desaparecidos[i][0])
+        ratio = fuzz.partial_ratio(param,desaparecidos[i2][0])
+        if (ratio>77):
+            listaDesaparecidos.append(desaparecidos[i2][0])
         i2+=1
     if (not listaEncontrados) and (not listaDesaparecidos):
         htmlString = "<h3>Lo sentimos, no encontramos ninguna coincidencia.</h3> <h4>Puedes intentar en las siguientes opciones</h4>"
@@ -122,4 +76,4 @@ def getparameters():
 
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=8080)
+    app.run(host='0.0.0.0', port=8082)
