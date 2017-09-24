@@ -1,0 +1,52 @@
+<!doctype html>
+
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+
+  <title>TestForm</title>
+  <meta name="description" content="The HTML5 Herald">
+  <meta name="author" content="SitePoint">
+
+  <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+  <div class="container">  
+    <form id="contact" action="" method="post">
+      <h3>Testing Template</h3>
+      <fieldset>
+        <input placeholder="Nombre" type="text" tabindex="1" id="nombre" name="nombre" required autofocus>
+      </fieldset>
+      <fieldset>
+        <button name="submit" type="submit" id="contact-submit" data-submit="...Sending">Submit</button>
+      </fieldset>
+
+    </form>
+  </div>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+  <script type="text/javascript">
+$(document).ready(function(){
+   $("#contact").on("submit", function(){
+        var nombre = $('#nombre').val();    
+        $.ajax({
+            type:"GET",
+            url:"http://basiko.cloudapp.net:8082/PERSONA",
+            crossDomain: true,
+            data:{"nombre": nombre},
+            success: function(status,result,xhr){
+              console.log(status);
+              console.log(result);
+              console.log(xhr);
+            },
+            failure: function(result){
+              console.log(result);
+            }
+        }); return false;
+      });
+
+});
+</script>
+
+</body>
+</html>
